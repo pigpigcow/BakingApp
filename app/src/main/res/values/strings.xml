@@ -1,0 +1,13 @@
+<resources>
+    <string name="app_name">Baking App</string>
+    <string name="recipe_name">Recipe Name</string>
+    <string name="title_item_detail">Item Detail</string>
+    <string name="recipe_not_found">Recipe not found!</string>
+    <string name="step_content_description">Recipe step image</string>
+    <string name="load_error">Load error</string>
+    <string name="error_loading">
+        Load error. Internet is required for this app, please restart app when internet is available.
+    </string>
+    <string name="appwidget_text">Recipe List</string>
+    <string name="add_widget">Add widget</string>
+</resources>
