@@ -21,6 +21,7 @@ import com.example.bakingapp.recipe.Recipe;
 import com.example.bakingapp.recipe.RecipeContent;
 import com.example.bakingapp.recipe.Step;
 import com.google.android.exoplayer2.ui.SimpleExoPlayerView;
+import com.google.android.exoplayer2.util.Util;
 import com.google.android.material.appbar.CollapsingToolbarLayout;
 import com.google.android.material.floatingactionbutton.FloatingActionButton;
 
@@ -56,6 +57,9 @@ public class ItemDetailFragment extends Fragment implements View.OnClickListener
     FrameLayout mediaHolder;
     @BindView(R.id.detail_fragment_content)
     TextView content;
+    private int playerState = -1;
+    private long playerPostion = -1;
+    private boolean playerWhenReady = true;
 
 
     /**
@@ -75,7 +79,6 @@ public class ItemDetailFragment extends Fragment implements View.OnClickListener
             key = savedInstanceState.getInt(this.getClass().getSimpleName());
             stepIndex = savedInstanceState.getInt(this.getClass().getSimpleName() + "steps");
         }
-        setUI();
     }
 
 
@@ -118,6 +121,7 @@ public class ItemDetailFragment extends Fragment implements View.OnClickListener
             if (s != null && StringHelper.isValid(s.getVideoURL()) || StringHelper.isValid(s.getThumbnailURL())) {
                 mediaHolder.setVisibility(View.VISIBLE);
                 mHelper = new MediaHelper(s, mPlayerView, image, activity);
+                mHelper.setupPlayer(playerWhenReady,playerState, playerPostion);
             } else {
                 mediaHolder.setVisibility(View.GONE);
                 content.setVisibility(View.VISIBLE);
@@ -141,6 +145,9 @@ public class ItemDetailFragment extends Fragment implements View.OnClickListener
         } else {
             key = savedInstanceState.getInt(this.getClass().getSimpleName());
             stepIndex = savedInstanceState.getInt(this.getClass().getSimpleName() + "steps", stepIndex);
+            playerPostion = savedInstanceState.getLong(MediaHelper.POSITION_KEY, -1);
+            playerState = savedInstanceState.getInt(MediaHelper.STATE_KEY, -1);
+            playerWhenReady = savedInstanceState.getBoolean(MediaHelper.PLAY_WHEN_READY_KEY, true);
         }
         return rootView;
     }
@@ -149,6 +156,14 @@ public class ItemDetailFragment extends Fragment implements View.OnClickListener
     public void onSaveInstanceState(@NonNull Bundle outState) {
         outState.putInt(this.getClass().getSimpleName(), key);
         outState.putInt(this.getClass().getSimpleName() + "steps", stepIndex);
+        if( mHelper != null && mHelper.mediaExist()) {
+            playerPostion =  mHelper.getPlayer().getCurrentPosition();
+            playerState = mHelper.getPlayer().getPlaybackState();
+            playerWhenReady = mHelper.getPlayer().getPlayWhenReady();
+            outState.putLong(MediaHelper.POSITION_KEY, playerPostion );
+            outState.putInt(MediaHelper.STATE_KEY, playerState );
+            outState.putBoolean(MediaHelper.PLAY_WHEN_READY_KEY, playerWhenReady);
+        }
     }
 
     public void setKey(int mListIndex) {
@@ -166,9 +181,7 @@ public class ItemDetailFragment extends Fragment implements View.OnClickListener
     @Override
     public void onDestroy() {
         super.onDestroy();
-        if (mHelper != null) {
-            mHelper.onDestroy();
-        }
+        releasePlayer();
     }
 
     public void setupIndex(int key, int stepIndex) {
@@ -192,5 +205,43 @@ public class ItemDetailFragment extends Fragment implements View.OnClickListener
 
     public Recipe getRecipe() {
         return RecipeContent.getInstance().getItemMap().get(key);
+    }
+
+    @Override
+    public void onStart() {
+        super.onStart();
+        if (Util.SDK_INT > 23) {
+            setUI();
+        }
+    }
+
+    @Override
+    public void onResume() {
+        super.onResume();
+        if ((Util.SDK_INT <= 23 || mHelper == null || !mHelper.mediaExist())) {
+            setUI();
+        }
+    }
+
+    @Override
+    public void onPause() {
+        super.onPause();
+        if (Util.SDK_INT <= 23) {
+            releasePlayer();
+        }
+    }
+
+    @Override
+    public void onStop() {
+        super.onStop();
+        if (Util.SDK_INT > 23) {
+            releasePlayer();
+        }
+    }
+
+    public void releasePlayer() {
+        if (mHelper != null) {
+            mHelper.onDestroy();
+        }
     }
 }

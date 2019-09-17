@@ -39,6 +39,9 @@ import com.squareup.picasso.Picasso;
 import java.io.IOException;
 
 public class MediaHelper implements ExoPlayer.EventListener {
+    public static final String POSITION_KEY = "position_key";
+    public static final String STATE_KEY = "state_key";
+    public static final String PLAY_WHEN_READY_KEY = "play_when_ready_key";
     private PlaybackStateCompat.Builder mStateBuilder;
     private SimpleExoPlayer mExoPlayer;
     private SimpleExoPlayerView mPlayerView;
@@ -132,6 +135,18 @@ public class MediaHelper implements ExoPlayer.EventListener {
         }
     }
 
+    public void setupPlayer(boolean playerWhenReady, int playerState, long playerPostion) {
+        if(mediaExist()) {
+            if(playerPostion > -1) {
+                mExoPlayer.seekTo(playerPostion);
+            }
+
+            if(playerState > -1) {
+                onPlayerStateChanged( playerWhenReady ,playerState);
+            }
+        }
+    }
+
     private class MySessionCallback extends MediaSessionCompat.Callback {
         SimpleExoPlayer mExoPlayer;
 
@@ -196,8 +211,15 @@ public class MediaHelper implements ExoPlayer.EventListener {
         if (mExoPlayer != null) {
             mExoPlayer.stop();
             mExoPlayer.release();
-            mExoPlayer = null;
             mMediaSession.setActive(false);
         }
+    }
+
+    public boolean mediaExist() {
+        return mExoPlayer != null;
+    }
+
+    public SimpleExoPlayer getPlayer() {
+        return mExoPlayer;
     }
 }

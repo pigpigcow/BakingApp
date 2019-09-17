@@ -75,6 +75,17 @@ public class ItemDetailActivity extends AppCompatActivity {
             arguments.putString(STEP_INDEX_KEY,String.valueOf(stepIndex));
             detailFragment = new ItemDetailFragment();
             detailFragment.setArguments(arguments);
+            if(stepIndex == getRecipe().getSteps().size()) {
+                fabRight.hide();
+            } else {
+                fabRight.show();
+            }
+
+            if(stepIndex == 0) {
+                fabLeft.hide();
+            } else {
+                fabLeft.show();
+            }
             fragID = fragContainer.getId();
             getSupportFragmentManager().beginTransaction()
                     .add(fragID, detailFragment)
@@ -99,7 +110,7 @@ public class ItemDetailActivity extends AppCompatActivity {
     public void navRight(View view) {
         if(stepIndex < getRecipe().getSteps().size()) {
             detailFragment.setupIndex(key, ++stepIndex);
-            if(stepIndex == getRecipe().getSteps().size() - 1) {
+            if(stepIndex == getRecipe().getSteps().size() ) {
                 fabRight.hide();
             }
             fabLeft.show();

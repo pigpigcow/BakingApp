@@ -11,9 +11,13 @@ import android.view.ViewGroup;
 import android.widget.ProgressBar;
 import android.widget.TextView;
 
+import androidx.annotation.NonNull;
+import androidx.annotation.VisibleForTesting;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.recyclerview.widget.GridLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
+import androidx.test.espresso.IdlingResource;
+import androidx.test.espresso.idling.CountingIdlingResource;
 
 import com.example.bakingapp.Utils.NetworkUtils;
 import com.example.bakingapp.recipe.Recipe;
@@ -28,6 +32,8 @@ import butterknife.ButterKnife;
 import static com.example.bakingapp.SimpleItemRecyclerViewAdapter.ARG_ITEM_ID;
 
 public class MainActivity extends AppCompatActivity {
+    private CountingIdlingResource mIdlingResource;
+
     @BindView(R.id.item_list)
     RecyclerView recyclerView;
     @BindView(R.id.tv_error_message_display)
@@ -144,5 +150,14 @@ public class MainActivity extends AppCompatActivity {
             updateUI();
             recyclerView.setVisibility(View.VISIBLE);
         }
+    }
+
+    @VisibleForTesting
+    @NonNull
+    public IdlingResource getIdlingResource() {
+        if (mIdlingResource == null) {
+            mIdlingResource = new CountingIdlingResource(MainActivity.class.getSimpleName());
+        }
+        return mIdlingResource;
     }
 }

@@ -152,7 +152,8 @@ public class ItemListActivity extends AppCompatActivity implements View.OnClickL
     public void showIngredientListInWidget(View view) {
         Snackbar.make(view, "Ingredients list updated", Snackbar.LENGTH_LONG)
                 .setAction("Action", null).show();
-        String msg = RecipeContent.getInstance().getItemMap().get(key).getIngredientListString();
+        Recipe r = RecipeContent.getInstance().getItemMap().get(key);
+        String msg = r.getName() + "\n\n" + r.getIngredientListString();
         IngredientList.setMsg(msg);
         Intent intent = new Intent(this, IngredientList.class);
         intent.setAction(AppWidgetManager.ACTION_APPWIDGET_UPDATE);
@@ -178,7 +179,7 @@ public class ItemListActivity extends AppCompatActivity implements View.OnClickL
     public void navRight(FloatingActionButton fabLeft, FloatingActionButton fabRight) {
         if(stepIndex < getRecipe().getSteps().size()) {
             detailFragment.setupIndex(key, ++stepIndex);
-            if(stepIndex == getRecipe().getSteps().size() - 1) {
+            if(stepIndex == getRecipe().getSteps().size()) {
                 fabRight.hide();
             }
             fabLeft.show();
